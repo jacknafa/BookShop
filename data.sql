@@ -56,24 +56,24 @@ DELETE FROM likes WHERE user_id = 1 AND liked_book_id = 3;
 INSERT INTO cartItems (book_id, quantity, user_id) VALUES (1, 1, 1);
 
 // 장바구니 아이템 목록 조회
-SELECT cartItems.id, book_id, title, summary, quantity, price 
-FROM cartItems LEFT JOIN books 
-ON cartItems.book_id = books.id;
+SELECT Bookshop.cartitems.id, book_id, title, summary, quantity, price 
+FROM Bookshop.cartitems LEFT JOIN Bookshop.books 
+ON Bookshop.cartitems.book_id = books.id;
 
 // 장바구니 아이템 조회
-DELETE FROM cartItems WHERE id = ?;
+DELETE FROM Bookshop.cartitems WHERE id = ?;
 
 // 장바구니에서 선택한(장바구니 도서 id) 아이템 목록 조회 (=선택한 장바구니 상품 목록 조회)
-SELECT * FROM Bookshop.cartItems WHERE user_id=1 AND id IN (1,3)
+SELECT * FROM Bookshop.cartitems WHERE user_id=1 AND id IN (1,3)
 
 
 // 주문하기
 // 배송 정보 입력
-INSERT INTO delivery (address, receiver, contact) VALUES ("서울시 중구", "김송아", "010-1234-5678");
+INSERT INTO Bookshop.delivery (address, receiver, contact) VALUES ("수원시", "김준서", "010-1234-5678");
 const delivery_id = SELECT max(id) FROM delivery;
 
 // 주문 정보 입력
-INSERT INTO orders (book_title, total_quantity, total_price, user_id, delivery_id) 
+INSERT INTO Bookshop.orders (book_title, total_quantity, total_price, user_id, delivery_id) 
 VALUES ("어린왕자들", 3, 60000, 1, delivery_id);
 const order_id = SELECT max(id) FROM orders;
 

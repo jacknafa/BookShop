@@ -1,23 +1,15 @@
 const express = require('express');
 const router = express.Router();
-
+const {addToCart, getCartItems, removeCartItem} = require('../controller/cartController');
 router.use(express.json());
 
-router.post('/', (req, res) => {
-    res.json('회원가입')
-});
+router.post('/', addToCart);
 
-router.get('/', (req, res) => {
-    res.json('회원가입')
-});
+router.get('/',getCartItems );
 
-router.delete('/:id', (req, res) => {
-    res.json('회원가입')
-});
+router.delete('/:id', removeCartItem);
 
-// router.get('/carts', (req, res) => {
-//     res.json('회원가입')
-// });
+
 
 
 module.exports = router

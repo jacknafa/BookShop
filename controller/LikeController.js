@@ -1,3 +1,4 @@
+// 2024-04-15 감준서
 const conn = require('../mariadb');
 const {StatusCodes} = require('http-status-codes');
 
@@ -42,3 +43,4 @@ module.exports = {
     addLike,
     removeLike
 };
+

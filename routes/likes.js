@@ -1,3 +1,4 @@
+// 2024-04-15 감준서
 const express = require('express');
 const router = express.Router();
 const {addLike, removeLike} = require('../controller/LikeController');
@@ -9,3 +10,5 @@ router.delete('/:id', removeLike);
 
 
 module.exports = router;
+
+
