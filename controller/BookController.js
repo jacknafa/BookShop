@@ -1,15 +1,18 @@
 //2024-04-11 김준서
 const conn = require('../mariadb');
+const ensureAuthorization = require('../auth');
+const jwt = require('jsonwebtoken');
 const {StatusCodes} = require('http-status-codes');
 
 const allBooks = (req, res) => {
+    let allBooksRes = {};
     let {category_id, news, limit, currentPage} = req.query;
     // limit : 한 페이지당 보여주는 도서 수
     // currentPage : 현재 페이지(1,2,3...)
 
     let offset = limit * (currentPage-1);
 
-    let sql = 'SELECT *, (SELECT count(*) FROM Bookshop.likes WHERE liked_book_id = Bookshop.books.id) AS likes FROM Bookshop.books';
+    let sql = 'SELECT SQL_CALC_FOUND_ROWS *, (SELECT count(*) FROM Bookshop.likes WHERE liked_book_id = Bookshop.books.id) AS likes FROM Bookshop.books';
     let values = [];
     if (category_id && news){
         sql += ' WHERE category_id = ? AND pub_date BETWEEN DATE_SUB(NOW(), INTERVAL 1 MONTH) AND NOW()';
@@ -28,43 +31,93 @@ const allBooks = (req, res) => {
         (err, results) => {
             if(err) {
                 console.log(err);
-                return res.status(StatusCodes.BAD_REQUEST).end();
+                // return res.status(StatusCodes.BAD_REQUEST).end();
                     }
+                console.log(results);
                     
             if(results.length)
-                return res.status(StatusCodes.OK).json(results);
+                allBooksRes.books = results;
             else
                 return res.status(StatusCodes.NOT_FOUND).end();
             })
-    
-};
 
-
-const bookDetail = (req,res) => {
-    let {user_id} = req.body;
-    let book_id = req.params.id;
-  
-    let sql = `SELECT *,
-                (SELECT count(*) FROM Bookshop.likes WHERE liked_book_id = Bookshop.books.id) AS likes,
-                (SELECT EXISTS (SELECT * FROM Bookshop.likes WHERE user_id=? AND liked_book_id=?)) AS liked 
-                FROM Bookshop.books 
-                LEFT JOIN Bookshop.category 
-                ON books.category_id = category.category_id 
-                WHERE books.id=?`;
-                
-    let values = [user_id, book_id, book_id];
-    conn.query(sql, values,
+    sql = 'SELECT found_rows()';
+    conn.query(sql,
         (err, results) => {
             if(err) {
                 console.log(err);
                 return res.status(StatusCodes.BAD_REQUEST).end();
             }
-            
-            if(results[0])
-                return res.status(StatusCodes.OK).json(results[0]);
-            else
-                return res.status(StatusCodes.NOT_FOUND).end();
+                let pagination = {};
+                pagination.currentPage = parseInt(currentPage);
+                pagination.totalCount = results[0]["found_rows()"];
+
+                allBooksRes.pagination = pagination;
+
+                return res.status(StatusCodes.OK).json(allBooksRes);
     })
+    
+};
+
+
+const bookDetail = (req,res) => {
+    let authorization = ensureAuthorization(req,res);
+
+    if(authorization instanceof jwt.TokenExpiredError){
+        return res.status(StatusCodes.UNAUTHORIZED).json({
+            "message" : "로그인 세션이 만료되었습니다. 다시 로그인 하세요"
+        });
+    }else if(authorization instanceof jwt.JsonWebTokenError){
+        return res.status(StatusCodes.BAD_REQUEST).json({
+            "message" : "잘못된 토큰입니다."
+        });
+    }else if(authorization instanceof ReferenceError){
+        let book_id = req.params.id;
+        let sql = `SELECT *,
+                    (SELECT count(*) FROM Bookshop.likes WHERE liked_book_id = Bookshop.books.id) AS likes 
+                    FROM Bookshop.books 
+                    LEFT JOIN Bookshop.category 
+                    ON books.category_id = category.category_id 
+                    WHERE books.id=?`;
+        
+        let values = [book_id];
+        conn.query(sql, values,
+            (err, results) => {
+                if(err) {
+                    console.log(err);
+                    return res.status(StatusCodes.BAD_REQUEST).end();
+                }
+                
+                if(results[0])
+                    return res.status(StatusCodes.OK).json(results[0]);
+                else
+                    return res.status(StatusCodes.NOT_FOUND).end();
+            });
+    }else{
+        let book_id = req.params.id;
+
+        let sql = `SELECT *,
+                    (SELECT count(*) FROM Bookshop.likes WHERE liked_book_id = Bookshop.books.id) AS likes,
+                    (SELECT EXISTS (SELECT * FROM Bookshop.likes WHERE user_id=? AND liked_book_id=?)) AS liked 
+                    FROM Bookshop.books 
+                    LEFT JOIN Bookshop.category 
+                    ON books.category_id = category.category_id 
+                    WHERE books.id=?`;
+                    
+        let values = [authorization.id, book_id, book_id];
+        conn.query(sql, values,
+            (err, results) => {
+                if(err) {
+                    console.log(err);
+                    return res.status(StatusCodes.BAD_REQUEST).end();
+                }
+                
+                if(results[0])
+                    return res.status(StatusCodes.OK).json(results[0]);
+                else
+                    return res.status(StatusCodes.NOT_FOUND).end();
+        });
+    };
 };
 
 module.exports = {
