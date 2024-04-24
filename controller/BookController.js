@@ -1,4 +1,4 @@
-//2024-04-11 김준서
+
 const conn = require('../mariadb');
 const ensureAuthorization = require('../auth');
 const jwt = require('jsonwebtoken');
@@ -7,8 +7,6 @@ const {StatusCodes} = require('http-status-codes');
 const allBooks = (req, res) => {
     let allBooksRes = {};
     let {category_id, news, limit, currentPage} = req.query;
-    // limit : 한 페이지당 보여주는 도서 수
-    // currentPage : 현재 페이지(1,2,3...)
 
     let offset = limit * (currentPage-1);
 
@@ -31,12 +29,18 @@ const allBooks = (req, res) => {
         (err, results) => {
             if(err) {
                 console.log(err);
-                // return res.status(StatusCodes.BAD_REQUEST).end();
+    
                     }
                 console.log(results);
                     
-            if(results.length)
+            if(results.length){
+                results.map(function(result){
+                    result.pubDate = result.pub_date;
+                    delete result.pub_date
+                })
                 allBooksRes.books = results;
+
+            }
             else
                 return res.status(StatusCodes.NOT_FOUND).end();
             })

@@ -1,4 +1,4 @@
-// 2024-04-15 감준서
+
 const ensureAuthorization = require('../auth');
 const jwt = require('jsonwebtoken');
 const conn = require('../mariadb');

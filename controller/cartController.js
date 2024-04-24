@@ -1,4 +1,4 @@
-// 2024-04-16_김준서
+
 const ensureAuthorization = require('../auth');
 const jwt = require('jsonwebtoken');
 const conn = require('../mariadb');
@@ -33,7 +33,7 @@ const addToCart = (req, res) => {
     }
 };
 
-// 2024-04-16_김준서
+
 const getCartItems = (req, res) => {
     const {selected} = req.body;
 
@@ -71,7 +71,7 @@ const getCartItems = (req, res) => {
     }
 };
 
-// 2024-04-16_김준서
+
 const removeCartItem = (req, res) => {
     let authorization = ensureAuthorization(req,res);
 

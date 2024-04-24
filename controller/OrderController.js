@@ -1,4 +1,3 @@
-// 2024-04-18_김준서
 
 const mariadb = require('mysql2/promise');
 const ensureAuthorization = require('../auth');
@@ -6,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const {StatusCodes} = require('http-status-codes');
 
 const order = async (req, res) => {
-    const conn = await mariadb.createConnection({ // DB와 연결 통로 생성
+    const conn = await mariadb.createConnection({ 
         host : 'localhost',
         port : 3307,
         user : 'root',
@@ -81,7 +80,7 @@ const getOrders = async (req, res) => {
             "message" : "잘못된 토큰입니다."
         });
     }else{
-        const conn = await mariadb.createConnection({ // DB와 연결 통로 생성
+        const conn = await mariadb.createConnection({ 
             host : 'localhost',
             port : 3307,
             user : 'root',
@@ -112,7 +111,7 @@ const getOrderDetail = async (req, res) => {
     }else{
         const orderId = req.params.id;
 
-        const conn = await mariadb.createConnection({ // DB와 연결 통로 생성
+        const conn = await mariadb.createConnection({ 
             host : 'localhost',
             port : 3307,
             user : 'root',

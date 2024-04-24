@@ -1,4 +1,3 @@
-//2024-04-11 김준서
 const express = require('express');
 const router = express.Router();
 const {

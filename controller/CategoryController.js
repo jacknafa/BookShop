@@ -1,4 +1,3 @@
-//2024-04-11 김준서
 const conn = require('../mariadb');
 const {StatusCodes} = require('http-status-codes');
 

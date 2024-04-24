@@ -1,4 +1,4 @@
-//2024-04-10 김준서
+
 const conn = require('../mariadb');
 const {StatusCodes} = require('http-status-codes');
 const jwt = require('jsonwebtoken');
@@ -23,7 +23,10 @@ const join = (req, res) => {
                 return res.status(StatusCodes.BAD_REQUEST).end();
             }
 
-            return res.status(StatusCodes.CREATED).json(results);
+            if(results.affectedRows)
+                return res.status(StatusCodes.CREATED).json(results);
+            else
+                return res.status(StatusCodes.BAD_REQUEST).end();
         })
 };
 

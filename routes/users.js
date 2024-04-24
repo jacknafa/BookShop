@@ -1,6 +1,6 @@
-const express = require('express'); //express 모듈
+const express = require('express'); 
 const router = express.Router();
-const conn = require('../mariadb'); //db 모듈
+const conn = require('../mariadb'); 
 const {
     join, 
     login, 
